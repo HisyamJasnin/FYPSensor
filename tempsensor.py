@@ -34,5 +34,5 @@ def read_temp():
 
 # create loop to print out the data every 2 seconds
 while True:
-    print(read_temp())
+    print("Current temperature = " + read_temp() + " °C")
     time.sleep(2)
