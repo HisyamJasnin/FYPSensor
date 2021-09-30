@@ -9,7 +9,7 @@ os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
 # define the location for the sensor output is located
-temp_sensor = '/sys/bus/w1/devices/Sensor_name/w1_slave'
+temp_sensor = '/sys/bus/w1/devices/28-3c01f095948b//w1_slave'
 
 # function to read raw sensor output file
 def raw_temp():
