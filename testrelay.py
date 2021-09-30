@@ -24,36 +24,36 @@ GPIO.setup(relay_4, GPIO.OUT)
 try:
     while True:
         # to turn on relay
-        GPIO.output(relay_1, GPIO.HIGH)
+        GPIO.output(relay_1, GPIO.LOW)
         print("Relay 1 ON")
         time.sleep(1)
 
-        GPIO.output(relay_2, GPIO.HIGH)
+        GPIO.output(relay_2, GPIO.LOW)
         print("Relay 2 ON")
         time.sleep(1)
 
-        GPIO.output(relay_3, GPIO.HIGH)
+        GPIO.output(relay_3, GPIO.LOW)
         print("Relay 3 ON")
         time.sleep(1)
 
-        GPIO.output(relay_4, GPIO.HIGH)
+        GPIO.output(relay_4, GPIO.LOW)
         print("Relay 4 ON")
         time.sleep(1)
 
         # to turn off relay
-        GPIO.output(relay_1, GPIO.LOW)
+        GPIO.output(relay_1, GPIO.HIGH)
         print("Relay 1 OFF")
         time.sleep(1)
 
-        GPIO.output(relay_2, GPIO.LOW)
+        GPIO.output(relay_2, GPIO.HIGH)
         print("Relay 2 OFF")
         time.sleep(1)
 
-        GPIO.output(relay_3, GPIO.LOW)
+        GPIO.output(relay_3, GPIO.HIGH)
         print("Relay 3 OFF")
         time.sleep(1)
 
-        GPIO.output(relay_4, GPIO.LOW)
+        GPIO.output(relay_4, GPIO.HIGH)
         print("Relay 4 OFF")
         time.sleep(1)
 
