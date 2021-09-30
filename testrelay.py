@@ -5,7 +5,6 @@ import time
 # GPIO setmode(BOARD/BCM(BroadCoM))
 GPIO.setmode(GPIO.BCM)
 
-
 # Initialize the GPIO pins for the relay
 relay_1 = 21
 relay_2 = 12
@@ -58,9 +57,9 @@ try:
         print("Relay 4 OFF")
         time.sleep(1)
 
-    # Reset by pressing CTRL + C
-        except KeyboardInterrupt:
-        print("Test for relay is stopped by the user")
+# Reset by pressing CTRL + C
+except KeyboardInterrupt:
+    print("Test for relay is stopped by the user")
 
 finally:
         # clean up the GPIO pins
