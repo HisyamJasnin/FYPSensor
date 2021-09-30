@@ -6,10 +6,10 @@ import time
 GPIO.setmode(GPIO.BCM)
 
 # Initialize the GPIO pins for the relay
-relay_1 = 21
-relay_2 = 12
-relay_3 = 14
-relay_4 = 11
+relay_1 = 23
+relay_2 = 24
+relay_3 = 20
+relay_4 = 21
 
 # Relay 1
 GPIO.setup(relay_1, GPIO.OUT)
