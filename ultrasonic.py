@@ -1,43 +1,88 @@
 # libraries
 import RPi.GPIO as GPIO
 import time
+import mysql.connector
+from time import strftime
+from time import sleep
+import datetime
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
 
 # set GPIO Pins
-TRIG = 21
-ECHO = 20
+TRIG = 7
+ECHO = 12
 
 # set GPIO direction (IN / OUT)
-while True:
-    print("Distance measurement in progress")
-    GPIO.setup(TRIG, GPIO.OUT)  # declare trigger pin as output
-    GPIO.setup(ECHO, GPIO.IN)   # declare echo pin as input
-
-    GPIO.output(TRIG, False)    # make the trigger pin to be low - to stabilize the sensor
-    print("waiting for sensor to settle")
-    time.sleep(0.2)
+print("Distance measurement in progress")
+GPIO.setup(TRIG, GPIO.OUT)  # declare trigger pin as output
+GPIO.setup(ECHO, GPIO.IN)   # declare echo pin as input
+    
+def distance():
+    # set Trigger to HIGH
     GPIO.output(TRIG, True)
-    time.sleep(0.00001) # wait 10 micro second
-    GPIO.otuput(TRIG, False)
-
-    # save start time
-    while GPIO.input(ECHO) == 0:    # wait till echo is low
-        pulse_start = time.time()
-
+    
+    # set Trigger after 0.01ms to LOW
+    time.sleep(0.00001)
+    GPIO.output(TRIG, False)
+    
+    StartTime = time.time()
+    StopTime = time.time()
+    
+    # save StartTime
+    while GPIO.input(ECHO) ==0:
+        StartTime = time.time()
+        
     # save time of arrival
-    while GPIO.input(ECHO) == 1:    # wait here till echo is high
-        pulse_end = time.time()
+    while GPIO.input(ECHO) ==1:
+        StopTime = time.time()
+    
+    # time difference between start and arrival
+    TimeElapsed = StopTime - StartTime
+    # multiply with the sonic speed (34300 cm/s)
+    # and divide by 2, because there and back
+    distance = (TimeElapsed * 34300) / 2
+    
+    return distance   
+   
+if __name__ == '__main__':
+    try:
+        while True:
+            dist = distance()
+            print("Distance: %.1f cm " % dist)
+            time.sleep(1)
+            
+            print("clean up")
+            GPIO.cleanup() # cleanup all GPIO
+            break
+            
+         # create connection for MySQL
+        db = mysql.connector.connect(host= "128.199.176.62",
+                                 user= "sam",
+                                 password= "password",
+                                 port= "3306",
+                                 database= "sensor_database")
+    
+        # create time format for the sensor data
+        now = datetime.datetime.now()
+        date = now.strftime('%Y-%m-%d %H:%M:%S')
+         
+        # create cursor object
+        cursor = db.cursor()
+        # Excute SQL command and insert data into database
+        cursor.execute(""" INSERT INTO water_level (datetime,distance) VALUES (%s,%s) """,(date,str(round(dist,1))))
+        # Commit changes in the database
+        db.commit()
 
-        # time difference between start and end
-        pulse_duration = pulse_end - pulse_start
-        distance = pulse_duration * 17150
-        distance = round(distance, 2)
-        print("Distance: ", distance, " cm")
-        time.sleep(2)
+    except mysql.connector.Error as error:
+        print("Failed to get record from database: {}".format(error))
+     
+    finally:
+        # close cursor and end connection to database
+        if db.is_connected():
+            cursor.close()
+            db.close()
+            print("MySQL connection is closed")
 
-    # Reset by pressing CTRL + C
-        except KeyboardInterrupt:
-        print("Measurement stopped by the User")
-        GPIO.cleanup()
+        
+                                                                         
