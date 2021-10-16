@@ -51,6 +51,10 @@ try:
                                  port= "3306",
                                  database= "sensor_database")
     
+    # Host name for device
+    dev_user = 'Sam Samuel'
+    ip = '61.6.235.245'
+    
     # create time format for the sensor data
     now = datetime.datetime.now()
     date = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -58,7 +62,7 @@ try:
     # create cursor object
     cursor = db.cursor()
     # Excute SQL command and insert data into database
-    cursor.execute(""" INSERT INTO tempLog (datetime,temperature) VALUES (%s,%s) """,(date,read_temp()))
+    cursor.execute(""" INSERT INTO tempLog (name, ipaddress, datetime,temperature) VALUES (%s,%s,%s,%s) """,(dev_user,ip,date,str(round(read_temp(),1))))
     # Commit changes in the database
     db.commit()
 
@@ -71,6 +75,4 @@ finally:
         cursor.close()
         db.close()
         print("MySQL connection is closed")
-
-    
 
