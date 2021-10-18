@@ -58,10 +58,10 @@ if __name__ == '__main__':
             
          # create connection for MySQL
         db = mysql.connector.connect(host= "128.199.176.62",
-                                 user= "sam",
-                                 password= "password",
-                                 port= "3306",
-                                 database= "sensor_database")
+                                     user= "sam",
+                                     password= "password",
+                                     port= "3306",
+                                     database= "sprinkler")
     
         # create time format for the sensor data
         now = datetime.datetime.now()
@@ -69,8 +69,15 @@ if __name__ == '__main__':
          
         # create cursor object
         cursor = db.cursor()
+        # get username from database
+        cursor.execute(""" SELECT Username FROM water_level ORDER BY ID DESC LIMIT 1 """)
+        record = cursor.fetchone()
+            
+        # selecting column value into variable
+        username = (record[0])
+            
         # Excute SQL command and insert data into database
-        cursor.execute(""" INSERT INTO water_level (datetime,distance) VALUES (%s,%s) """,(date,str(round(dist,1))))
+        cursor.execute(""" UPDATE water_level SET datetime = %s, distance =%s WHERE Username = %s""",(date,str(round(dist,1)),username))
         # Commit changes in the database
         db.commit()
 
