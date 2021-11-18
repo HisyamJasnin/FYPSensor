@@ -17,6 +17,7 @@ def callback(soil):
 GPIO.add_event_detect(soil, GPIO.BOTH, bouncetime=300)
 
 # give function to GPIO pin to run when there is changes
+GPIO.add_event_callback(input, callback)
 
 # initialize loop
 while True:
