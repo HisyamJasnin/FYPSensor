@@ -3,6 +3,8 @@ import RPi.GPIO as GPIO
 import time
 from time import strftime
 from time import sleep
+import mysql.connector
+import datetime
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -15,7 +17,7 @@ ECHO = 12
 print("Distance measurement in progress")
 GPIO.setup(TRIG, GPIO.OUT)  # declare trigger pin as output
 GPIO.setup(ECHO, GPIO.IN)   # declare echo pin as input
-dist_from_base = 11.1 # distance from the sensor to the base of the container
+dist_from_base = 10.7 # distance from the sensor to the base of the container
 
 def distance():
     # set Trigger to HIGH
@@ -44,13 +46,60 @@ def distance():
     
     return distance
 
-if __name__ == '__main__':
+def main_water():
     while True:
+        # for looping 3 times then stop
         dist = distance()
-        print("Distance: %.1f cm " % dist)
+        print("\nDistance: %.1f cm " % dist)
+            
         # get percentage of water filled
         percent = (dist_from_base - dist) / dist_from_base  * 100
-        percent = round(percent)
-        print("Water level: " + str(percent) + " %")
-        
+            
+        if dist >= dist_from_base:
+            percent = 0
+        elif dist <= 2.5:
+            percent = 100
+        else:
+            percent = round(percent)
+            
+        print("Percentage of water filled: " + str(percent) + " %")
         time.sleep(1)
+        break
+        
+    try:
+        # create connection for MySQL
+        db = mysql.connector.connect(host= "128.199.176.62",
+                                     user= "sam",
+                                     password= "password",
+                                     port= "3306",
+                                     database= "sprinkler")
+            
+        # create time format for the sensor data
+        now = datetime.datetime.now()
+        date = now.strftime('%Y-%m-%d %H:%M:%S')
+            
+        # create cursor object
+        cursor = db.cursor()
+        # get id and username from database
+        cursor.execute("""  SELECT Username FROM water_level ORDER BY ID DESC LIMIT 1 """)
+        record = cursor.fetchone()
+                
+        # selecting column value into variable
+        username = (record[0])
+                
+        # Excute SQL command and insert data into database
+        cursor.execute(""" UPDATE water_level SET datetime = %s, distance = %s, percentage = %s WHERE Username = %s""",(date,round(dist,1),percent,username))
+                
+        # Commit changes in the database
+        db.commit()
+                
+    except mysql.connector.Error as error:
+        print("Failed to get record from database: {}".format(error))
+                    
+    finally:
+        # close cursor and end connection to database
+        if db.is_connected():
+            cursor.close()
+            db.close()
+            print("MySQL connection is closed")
+                           
