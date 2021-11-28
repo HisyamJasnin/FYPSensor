@@ -38,47 +38,53 @@ def read_temp():
         return temp
 
 # create loop to print out the data every 2 seconds
-while True:
-     print("Current temperature = " + str(read_temp()) + " °C")
-     time.sleep(2)
-     break
-     
-try:
-    # create connection for MySQL
-    db = mysql.connector.connect(host= "128.199.176.62",
-                                 user= "sam",
-                                 password= "password",
-                                 port= "3306",
-                                 database= "sprinkler")
-    
-    # create time format for the sensor data
-    now = datetime.datetime.now()
-    date = now.strftime('%Y-%m-%d %H:%M:%S')
+def main_temp():
+    while True:
+         print("Current temperature = " + str(read_temp()) + " °C")
+         time.sleep(2)
+         break
          
-    # create cursor object
-    cursor = db.cursor()
-    # get id and username from database
-    cursor.execute("""  SELECT Username FROM tempLog ORDER BY ID DESC LIMIT 1 """)
-    record = cursor.fetchone()
-    
-    # selecting column value into variable
-    username = (record[0])
-    
-    # Excute SQL command and insert data into database
-    cursor.execute(""" UPDATE tempLog SET datetime = %s, temperature = %s WHERE Username = %s""",(date,str(round(read_temp(),1)), username))
-    # cursor.execute(""" INSERT INTO tempLog (Username,datetime,temperature) VALUES (%s,%s,%s) """,(usern,ip,date,str(round(read_temp(),1))))
-    # Commit changes in the database
-    db.commit()
+    try:
+        # create connection for MySQL
+        db = mysql.connector.connect(host= "128.199.176.62",
+                                     user= "sam",
+                                     password= "password",
+                                     port= "3306",
+                                     database= "sprinkler")
+        
+        # create time format for the sensor data
+        now = datetime.datetime.now()
+        date = now.strftime('%Y-%m-%d %H:%M:%S')
+             
+        # create cursor object
+        cursor = db.cursor()
+        # get id and username from database
+        cursor.execute("""  SELECT Username FROM tempLog ORDER BY ID DESC LIMIT 1 """)
+        record = cursor.fetchone()
+        
+        # selecting column value into variable
+        username = (record[0])
+        
+        # Excute SQL command and insert data into database
+        cursor.execute(""" UPDATE tempLog SET datetime = %s, temperature = %s WHERE Username = %s""",(date,str(round(read_temp(),1)), username))
+        # cursor.execute(""" INSERT INTO tempLog (Username,datetime,temperature) VALUES (%s,%s,%s) """,(usern,ip,date,str(round(read_temp(),1))))
+        # Commit changes in the database
+        db.commit()
 
-except mysql.connector.Error as error:
-    print("Failed to get record from database: {}".format(error))
-     
-finally:
-    # close cursor and end connection to database
-    if db.is_connected():
-        cursor.close()
-        db.close()
-        print("MySQL connection is closed")
+    except mysql.connector.Error as error:
+        print("Failed to get record from database: {}".format(error))
+         
+    finally:
+        # close cursor and end connection to database
+        if db.is_connected():
+            cursor.close()
+            db.close()
+            print("MySQL connection is closed")
+
+
+    
+
+
 
     
 
